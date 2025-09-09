@@ -1,0 +1,253 @@
+# Wrangler configuration for Cloudflare Workers
+# Docs: https://developers.cloudflare.com/workers/wrangler/configuration/
+# This template aims to enumerate the major, commonly used options in wrangler.toml.
+# Not every experimental/beta option is listed; prefer official docs for edge cases.
+
+# Required: unique Worker name in your Cloudflare account.
+name = "workertemplate"
+
+# Entry point for a Modules Worker. Use .ts/.mjs if needed.
+# If you ship a Service Worker script instead of Modules, see [build.upload] below.
+main = "index.js"
+
+# Required: locks your Worker to a specific runtime API version.
+# Bump intentionally after testing: https://developers.cloudflare.com/workers/platform/compatibility-dates/
+compatibility_date = "2025-09-09"
+
+# Optional: granular runtime feature flags; use sparingly.
+# Example: ["nodejs_compat"] or other flags listed in docs.
+# https://developers.cloudflare.com/workers/platform/compatibility-dates/#compatibility-flags
+# compatibility_flags = []
+
+# Optional: enable Node.js API polyfills (fetch-based). Prefer compatibility_flags where appropriate.
+# node_compat = true
+
+# Account to deploy under (auto-detected by login, but set explicitly for CI).
+# https://developers.cloudflare.com/workers/wrangler/commands/#login
+# account_id = ""
+
+# Deploy to *.workers.dev when true (useful without routes/zone).
+# workers_dev = true
+
+# Retain vars across publish if they already exist on the server (helps CI idempotency).
+keep_vars = true
+
+# Choose pricing/limits model. "bundled" (default) or "unbound".
+# https://developers.cloudflare.com/workers/platform/pricing/#usage-models
+# usage_model = "bundled"
+
+# Routing
+# Simple route list (no per-route options). Requires a zone.
+# routes = ["example.com/*", "api.example.com/*"]
+
+# Advanced per-route objects. Use either routes above OR [[routes]] blocks below.
+# [[routes]]
+# pattern = "example.com/*"
+# zone_name = "example.com"   # or zone_id = "..."
+# # Optional: custom placement per route (rare). See [placement] below.
+# # script = "<another-worker-name>"  # only when defining routes for other scripts
+
+# Triggers (CRON)
+# CRON schedules in crontab format (UTC). Your Worker must export a scheduled handler.
+# https://developers.cloudflare.com/workers/configuration/cron-triggers/
+# [triggers]
+# crons = ["*/5 * * * *"]
+
+# Observability
+# Collect platform metrics/traces; view in Dashboard > Observability.
+[observability]
+enabled = true
+# head_sampling_rate = 1.0  # 0.0–1.0 fraction to sample traces, when supported.
+
+# Smart Placement
+# Let Cloudflare place your Worker near the origin/data location automatically.
+# https://developers.cloudflare.com/workers/configuration/smart-placement/
+# [placement]
+# mode = "smart"  # "smart" or "off" (default if omitted)
+
+# Environment Variables (plaintext)
+# Do NOT store secrets here. For secrets, use `wrangler secret put`.
+# https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
+# [vars]
+# NODE_ENV = "production"
+# API_BASE_URL = "https://api.example.com"
+
+# Secrets
+# Define at deploy-time:
+# $ wrangler secret put MY_SECRET
+# They do not appear in wrangler.toml by design.
+
+# Static Assets (Workers Assets)
+# Serve static files bundled into your Worker and expose as a binding.
+# https://developers.cloudflare.com/workers/static-assets/binding/
+# [assets]
+# directory = "./public"
+# binding = "ASSETS"
+# html_handling = "auto"     # "auto" | "none"
+# not_found_handling = "none" # "none" | "single-page-application"
+
+# Modules: additional resources
+# Inline module maps. Keys become import names in your worker code.
+# [wasm_modules]
+# WASM_PARSER = "./wasm/parser.wasm"
+
+# [text_blobs]
+# EMAIL_TEMPLATE = "./templates/welcome.txt"
+
+# [data_blobs]
+# BINARY_CHUNK = "./assets/blob.bin"
+
+# Build Pipeline
+# Run a custom build before publish/dev.
+# https://developers.cloudflare.com/workers/wrangler/configuration/#build
+# [build]
+# command = "npm run build"
+# cwd = "."                # working directory for the build command
+# watch_dir = "src"        # re-run build during `wrangler dev` on changes
+
+# Switch between Modules and Service Worker upload formats.
+# [build.upload]
+# format = "modules"       # "modules" (default) or "service-worker"
+# main = "./worker.js"     # if using service-worker format, point to the SW bundle
+# dir = "dist"             # directory to upload when using service-worker format
+# rules = [
+#   { type = "Text", globs = ["**/*.txt"] },
+#   { type = "Data", globs = ["**/*.bin"] },
+#   { type = "CompiledWasm", globs = ["**/*.wasm"] },
+# ]
+
+# Local Dev Server
+# Customize `wrangler dev` behavior.
+# https://developers.cloudflare.com/workers/wrangler/configuration/#dev
+# [dev]
+# ip = "127.0.0.1"
+# port = 8787
+# local_protocol = "http"   # "http" or "https"
+# host = "localhost"
+# live_reload = true
+# inspector_port = 9229
+
+# KV Namespaces
+# https://developers.cloudflare.com/workers/wrangler/configuration/#kv-namespaces
+# [[kv_namespaces]]
+# binding = "MY_KV"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# preview_id = "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+
+# R2 Object Storage
+# https://developers.cloudflare.com/r2/
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-bucket"
+
+# D1 Databases
+# https://developers.cloudflare.com/d1/
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "my-db"
+# database_id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# preview_database_id = "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+
+# Durable Objects (fully commented)
+# Bind Durable Object classes by name. Implement and export classes in your code.
+# https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
+# [durable_objects]
+# bindings = [
+#   { name = "MY_DO", class_name = "MyDurableObject" }
+# ]
+
+# Durable Object migrations define class lifecycle changes over time.
+# Apply sequentially; never edit old tags once deployed.
+# https://developers.cloudflare.com/workers/wrangler/configuration/#migrations
+# [[migrations]]
+# tag = "v1"
+# new_classes = ["MyDurableObject"]
+
+# [[migrations]]
+# tag = "v2"
+# renamed_classes = [{ from = "MyDurableObject", to = "MyDO" }]
+
+# [[migrations]]
+# tag = "v3"
+# deleted_classes = ["LegacyObject"]
+
+# Queues (Producers & Consumers)
+# https://developers.cloudflare.com/queues/
+# [queues]
+# [[queues.producers]]
+# binding = "MY_QUEUE"
+# queue = "my-queue"
+# [[queues.consumers]]
+# queue = "my-queue"
+# max_batch_size = 10
+# max_batch_timeout = 2    # seconds
+# max_retries = 3
+# dead_letter_queue = "my-queue-dlq"
+
+# Analytics Engine
+# https://developers.cloudflare.com/analytics/analytics-engine/
+# [[analytics_engine_datasets]]
+# binding = "ANALYTICS"
+# dataset = "my_dataset"
+
+# Vectorize (Vector DB)
+# https://developers.cloudflare.com/vectorize/
+# [[vectorize]]
+# binding = "VECTORS"
+# index_name = "my-index"
+
+# Hyperdrive (Managed Postgres Connectivity)
+# https://developers.cloudflare.com/hyperdrive/
+# [[hyperdrive]]
+# binding = "PG"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # Hyperdrive config ID
+
+# Browser Rendering API
+# https://developers.cloudflare.com/browser-rendering/
+# [browser]
+# binding = "BROWSER"
+
+# Service Bindings (intra-account Workers RPC)
+# https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
+# [[services]]
+# binding = "MY_SERVICE"
+# service = "my-service"
+# environment = "production"  # optional
+
+# Dispatch Namespaces (advanced routing to multiple services)
+# https://developers.cloudflare.com/workers/learning/service-dispatch/
+# [[dispatch_namespaces]]
+# binding = "DISPATCH"
+# namespace = "my-namespace"
+
+# Tail Consumers (forward tail logs to another Worker)
+# https://developers.cloudflare.com/workers/platform/tail-workers/
+# [[tail_consumers]]
+# service = "log-sink"
+# environment = "production"
+
+# mTLS Certificates for outbound requests (Client Certs)
+# https://developers.cloudflare.com/workers/runtime-apis/mtls/
+# [[mtls_certificates]]
+# binding = "CLIENT_CERT"
+# certificate_id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# AI (Workers AI binding)
+# https://developers.cloudflare.com/workers-ai/
+# [ai]
+# binding = "AI"
+
+# Per-Environment Overrides
+# Any top-level key can be nested under [env.<name>] to override for that env.
+# Example: production overrides.
+# [env.production]
+# route = "api.example.com/*"
+# vars = { NODE_ENV = "production" }
+# [env.production.kv_namespaces]
+# # env-scoped tables must be re-declared within env blocks as needed.
+
+# Notes:
+# • Secrets are managed via `wrangler secret` and never stored here.
+# • Avoid enabling flags you don’t need. Test changes behind environments.
+# • When using routes, ensure the zone is in the same account as `account_id`.
+# • Prefer Modules syntax for new Workers.
