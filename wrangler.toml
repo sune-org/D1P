@@ -4,7 +4,7 @@
 # Not every experimental/beta option is listed; prefer official docs for edge cases.
 
 # Required: unique Worker name in your Cloudflare account.
-name = "workertemplate"
+name = "d1p"
 
 # Entry point for a Modules Worker. Use .ts/.mjs if needed.
 # If you ship a Service Worker script instead of Modules, see [build.upload] below.
