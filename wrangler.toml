@@ -1,8 +1,8 @@
 name = "d1p"
 main = "src/index.js"
-compatibility_date = "2024-03-20"
+compatibility_date = "2025-10-10"
 
 [[d1_databases]]
-binding = "DB"
+binding = "D1_SUNE"
 database_name = "sune"
 database_id = "140c5f3d-c4d4-4cdf-b520-a23366172971"
