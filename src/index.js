@@ -11,14 +11,15 @@ export default {
     if (!request.headers.get('content-type')?.includes('application/json')) return new Response(JSON.stringify({ error: 'Request must be application/json' }), { status: 400, headers });
 
     try {
-      const { query, params = [] } = await request.json();
+      const { query, params = [], binding } = await request.json();
 
-      // Basic query validation and security checks.
+      // Validate binding, query, and permissions.
+      if (!binding || !env[binding]) return new Response(JSON.stringify({ error: 'Invalid or missing binding provided.' }), { status: 400, headers });
       if (!query || typeof query !== 'string' || query.trim().includes(';')) return new Response(JSON.stringify({ error: 'Invalid or forbidden query provided.' }), { status: 400, headers });
-      if (!['select', 'insert', 'explain'].some(verb => query.trim().toLowerCase().startsWith(verb))) return new Response(JSON.stringify({ error: 'Forbidden: Only SELECT, INSERT, and EXPLAIN are permitted.' }), { status: 403, headers });
+      if (!/^(select|insert|explain)\b/i.test(query.trim())) return new Response(JSON.stringify({ error: 'Forbidden: Only SELECT, INSERT, and EXPLAIN are permitted.' }), { status: 403, headers });
 
-      // Execute the prepared statement against D1.
-      const result = await env.D1_SUNE.prepare(query).bind(...params).all();
+      // Execute the prepared statement against the specified D1 binding.
+      const result = await env[binding].prepare(query).bind(...params).all();
       
       // Return results with correct content-type.
       return new Response(JSON.stringify(result, null, 2), { headers: { ...headers, 'Content-Type': 'application/json' } });
