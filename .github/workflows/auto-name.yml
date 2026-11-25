@@ -2,9 +2,9 @@ on: push
 permissions: write-all
 jobs:
   j:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - run: |
           n=${GITHUB_REPOSITORY#*/};n=$(echo $n|tr A-Z a-z)
           jq ".name=\"$n\"" package.json>p.json && mv p.json package.json
